@@ -20,6 +20,10 @@ import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.geometry.Pos;
+import javafx.scene.layout.TilePane;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -32,6 +36,9 @@ public class ArcadeApp extends Application {
     Rectangle r = new Rectangle(20, 20); // some rectangle
     Scene titleScene;
     Scene gameScene;
+    int whiteScore = 2;
+    int blackScore = 2;
+    TilePane gameBoard;
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -73,6 +80,18 @@ public class ArcadeApp extends Application {
      * Sets up the game window.
      */
     private void setUpGameScene() {
+        MenuBar menuBar = new MenuBar();
+        Menu menu = new Menu("Pause");
+        MenuItem resume = new MenuItem("Resume");
+        MenuItem endGame = new MenuItem("Leave Game");
+        menu.getItems().addAll(resume, endGame);
+        menuBar.getMenus().add(menu);
+        HBox header = new HBox();
+        Label score = new Label("Score:   White = 2    Black = 2");
+        header.getChildren().add(score);
+        gameBoard = new TilePane();
+        gameBoard.setPrefCols(8);
+
         gameScene = new Scene(group, 640, 480);
     } //setUpGameWindow
 
