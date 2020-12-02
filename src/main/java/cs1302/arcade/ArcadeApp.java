@@ -1,7 +1,6 @@
 package cs1302.arcade;
 
 import java.util.Random;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -24,6 +23,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Label;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -39,6 +39,10 @@ public class ArcadeApp extends Application {
     int whiteScore = 2;
     int blackScore = 2;
     TilePane gameBoard;
+    TileSquare[] tiles;
+    Image green = new Image("https://www.leoscamera.com/images/cached/BD_Backgrounds_"
+         + "132_Veri_Green_Background_Paper_272_2000x2000_e0a456b5eacefafbbf67730032c025.jpg");
+    VBox gameVBox = new VBox();
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -78,21 +82,29 @@ public class ArcadeApp extends Application {
 
     /**
      * Sets up the game window.
+     * @param stage  the stage object for the game
      */
-    private void setUpGameScene() {
+    private void setUpGameScene(Stage stage) {
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("Pause");
         MenuItem resume = new MenuItem("Resume");
         MenuItem endGame = new MenuItem("Leave Game");
+        EventHandler<ActionEvent> endGameHandler = event -> stage.setScene(titleScene);
+        endGame.setOnAction(endGameHandler);
         menu.getItems().addAll(resume, endGame);
         menuBar.getMenus().add(menu);
         HBox header = new HBox();
         Label score = new Label("Score:   White = 2    Black = 2");
         header.getChildren().add(score);
         gameBoard = new TilePane();
-        gameBoard.setPrefCols(8);
-
-        gameScene = new Scene(group, 640, 480);
+        gameBoard.setPrefColumns(8);
+        tiles = new TileSquare[64];
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i] = new TileSquare(green);
+            gameBoard.getChildren().addAll(tiles[i]);
+        } //for
+        gameVBox.getChildren().addAll(menuBar, header, gameBoard);
+        gameScene = new Scene(gameVBox, 640, 480);
     } //setUpGameWindow
 
     /**
@@ -118,7 +130,7 @@ public class ArcadeApp extends Application {
     /** {@inheritDoc} */
     @Override
     public void start(Stage stage) {
-        setUpGameScene();
+        setUpGameScene(stage);
         setUpTitleScene(stage);
 //        r.setX(50);                                // 50px in the x direction (right)
 //        r.setY(50);                                // 50ps in the y direction (down)
