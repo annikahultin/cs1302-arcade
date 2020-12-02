@@ -12,7 +12,14 @@ import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
+import javafx.scene.image.Image;
+import javafx.geometry.Pos;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -23,6 +30,8 @@ public class ArcadeApp extends Application {
     Group group = new Group();           // main container
     Random rng = new Random();           // random number generator
     Rectangle r = new Rectangle(20, 20); // some rectangle
+    Scene titleScene;
+    Scene gameScene;
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -60,25 +69,47 @@ public class ArcadeApp extends Application {
         };
     } // createKeyHandler
 
+    /**
+     * Sets up the game window.
+     */
+    private void setUpGameScene() {
+        gameScene = new Scene(group, 640, 480);
+    } //setUpGameWindow
+
+    /**
+     * Sets up the intial title window for the game.
+     * @param stage  the stage object for the app.
+     */
+    private void setUpTitleScene(Stage stage) {
+        VBox vbox = new VBox();
+        HBox hbox = new HBox();
+        Image image = new Image("https://store-images.s-microsoft.com/image/apps."
+            + "40439.13902272735533786.62dcd87f-a7f1-4a5f-a2b7-ff69f15a9bcc.fee5bed0-c445-44c4-"
+        + "b6cb-09ae31b4c69b?mode=scale&q=90&h=1080&w=1920", 677, 378, true, false);
+        ImageView iv = new ImageView(image);
+        Button playButton = new Button("PLAY");
+        EventHandler<ActionEvent> playEvent = event -> stage.setScene(gameScene);
+        playButton.setOnAction(playEvent);
+        hbox.getChildren().add(playButton);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        vbox.getChildren().addAll(hbox, iv);
+        titleScene = new Scene(vbox, 672, 490);
+    } //setUpTitleScene
+
     /** {@inheritDoc} */
     @Override
     public void start(Stage stage) {
+        setUpGameScene();
+        setUpTitleScene(stage);
+//        r.setX(50);                                // 50px in the x direction (right)
+//        r.setY(50);                                // 50ps in the y direction (down)
+//        group.getChildren().add(r);                // add to main container
+//        r.setOnMouseClicked(createMouseHandler()); // clicks on the rectangle move it randomly
+//        group.setOnKeyPressed(createKeyHandler()); // left-right key presses move the rectangle
 
-        /* You are allowed to rewrite this start method, add other methods,
-         * files, classes, etc., as needed. This currently contains some
-         * simple sample code for mouse and keyboard interactions with a node
-         * (rectangle) in a group.
-         */
-
-        r.setX(50);                                // 50px in the x direction (right)
-        r.setY(50);                                // 50ps in the y direction (down)
-        group.getChildren().add(r);                // add to main container
-        r.setOnMouseClicked(createMouseHandler()); // clicks on the rectangle move it randomly
-        group.setOnKeyPressed(createKeyHandler()); // left-right key presses move the rectangle
-
-        Scene scene = new Scene(group, 640, 480);
+//        Scene scene = new Scene(group, 640, 480);
         stage.setTitle("cs1302-arcade!");
-        stage.setScene(scene);
+        stage.setScene(titleScene);
         stage.sizeToScene();
         stage.show();
 
