@@ -25,5 +25,4 @@ public class TileSquare extends ImageView {
         this.setImage(image);
     } //updateImage
 
-
 } //TileSquare

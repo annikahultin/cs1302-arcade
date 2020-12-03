@@ -40,9 +40,20 @@ public class ArcadeApp extends Application {
     int blackScore = 2;
     TilePane gameBoard;
     TileSquare[] tiles;
-    Image green = new Image("https://www.leoscamera.com/images/cached/BD_Backgrounds_"
-         + "132_Veri_Green_Background_Paper_272_2000x2000_e0a456b5eacefafbbf67730032c025.jpg");
+    Image green = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/129502363_69217092505763"
+        + "6_8837454463363984394_n.jpg?_nc_cat=102&ccb=2&_nc_sid=730e14&_nc_ohc=6EaJcW1b_8kAX9whb9o"
+        + "&_nc_ht=scontent-atl3-1.xx&oh=9488f88524913240fe134fa8b5e3e123&oe=5FEFB16F",
+         75, 75, true, false);
+    Image black = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/128921566_69217850172354"
+        + "5_1376646196384949752_n.jpg?_nc_cat=102&ccb=2&_nc_sid=730e14&_nc_ohc=Qo2_rnCXcm8AX-kHjWr"
+        + "&_nc_ht=scontent-atl3-1.xx&oh=2bb70bbb10e4aedfe6d61412c50c7dbf&oe=5FF06FBD"
+        , 75, 75, true, false);
+    Image white = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/128557674_69217621839044"
+        + "0_8937463809284160316_n.jpg?_nc_cat=107&ccb=2&_nc_sid=730e14&_nc_ohc=381d6OVWfUcAX8sPm9D"
+        + "&_nc_ht=scontent-atl3-1.xx&oh=403463ef5412958b0d09826828483727&oe=5FED4344"
+        , 75, 75, true, false);
     VBox gameVBox = new VBox();
+    String[][] board;
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -81,6 +92,22 @@ public class ArcadeApp extends Application {
     } // createKeyHandler
 
     /**
+     * Sets up the game board.
+     */
+    public void setUpGameBoard() {
+        board = new String[8][8];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                board[i][j] = "";
+            } //for
+        } //for
+        board[3][3] = "W";
+        board[3][4] = "B";
+        board[4][3] = "B";
+        board[4][4] = "W";
+    } //setUpGameBoard
+
+    /**
      * Sets up the game window.
      * @param stage  the stage object for the game
      */
@@ -103,8 +130,13 @@ public class ArcadeApp extends Application {
             tiles[i] = new TileSquare(green);
             gameBoard.getChildren().addAll(tiles[i]);
         } //for
+        tiles[27].updateImage(white);
+        tiles[28].updateImage(black);
+        tiles[35].updateImage(black);
+        tiles[36].updateImage(white);
         gameVBox.getChildren().addAll(menuBar, header, gameBoard);
-        gameScene = new Scene(gameVBox, 640, 480);
+        gameScene = new Scene(gameVBox, 600, 640);
+        stage.sizeToScene();
     } //setUpGameWindow
 
     /**
@@ -125,6 +157,7 @@ public class ArcadeApp extends Application {
         hbox.setAlignment(Pos.CENTER_LEFT);
         vbox.getChildren().addAll(hbox, iv);
         titleScene = new Scene(vbox, 672, 490);
+        stage.sizeToScene();
     } //setUpTitleScene
 
     /** {@inheritDoc} */
