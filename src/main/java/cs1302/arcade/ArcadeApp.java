@@ -39,7 +39,7 @@ public class ArcadeApp extends Application {
     int whiteScore = 2;
     int blackScore = 2;
     TilePane gameBoard;
-    TileSquare[] tiles;
+    TileSquare[][] tiles;
     Image green = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/129502363_69217092505763"
         + "6_8837454463363984394_n.jpg?_nc_cat=102&ccb=2&_nc_sid=730e14&_nc_ohc=6EaJcW1b_8kAX9whb9o"
         + "&_nc_ht=scontent-atl3-1.xx&oh=9488f88524913240fe134fa8b5e3e123&oe=5FEFB16F",
@@ -54,6 +54,8 @@ public class ArcadeApp extends Application {
         , 75, 75, true, false);
     VBox gameVBox = new VBox();
     String[][] board;
+    boolean whiteTurn = true;
+    boolean blackTurn = false;
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -62,9 +64,22 @@ public class ArcadeApp extends Application {
      */
     private EventHandler<? super MouseEvent> createMouseHandler() {
         return event -> {
-            System.out.println(event);
-            r.setX(rng.nextDouble() * (640 - r.getWidth()));
-            r.setY(rng.nextDouble() * (480 - r.getHeight()));
+            TileSquare tileClicked = (TileSquare) event.getSource();
+            int x = tileClicked.xValue();
+            int y = tileClicked.yValue();
+            if (board[x][y].equals("")) {
+                if (whiteTurn) {
+                    tileClicked.updateImage(white);
+                    board[x][y] = "W";
+                    whiteTurn = false;
+                    blackTurn = true;
+                } else {
+                    tileClicked.updateImage(black);
+                    board[x][y] = "B";
+                    blackTurn = false;
+                    whiteTurn = true;
+                } //if
+            } //if
         };
     } // createMouseHandler
 
@@ -108,6 +123,21 @@ public class ArcadeApp extends Application {
     } //setUpGameBoard
 
     /**
+     * Resets the game board.
+     */
+    private void resetGameBoard() {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                tiles[i][j].updateImage(green);
+            } //for
+        } //for
+        tiles[3][3].updateImage(white);
+        tiles[3][4].updateImage(black);
+        tiles[4][3].updateImage(black);
+        tiles[4][4].updateImage(white);
+    } //resetGameBoard
+
+    /**
      * Sets up the game window.
      * @param stage  the stage object for the game
      */
@@ -125,18 +155,25 @@ public class ArcadeApp extends Application {
         header.getChildren().add(score);
         gameBoard = new TilePane();
         gameBoard.setPrefColumns(8);
-        tiles = new TileSquare[64];
+        tiles = new TileSquare[8][8];
         for (int i = 0; i < tiles.length; i++) {
-            tiles[i] = new TileSquare(green);
-            gameBoard.getChildren().addAll(tiles[i]);
+            for (int j = 0; j < tiles[i].length; j++) {
+                tiles[i][j] = new TileSquare(green, i, j);
+                gameBoard.getChildren().addAll(tiles[i][j]);
+            } //for
         } //for
-        tiles[27].updateImage(white);
-        tiles[28].updateImage(black);
-        tiles[35].updateImage(black);
-        tiles[36].updateImage(white);
+        tiles[3][3].updateImage(white);
+        tiles[3][4].updateImage(black);
+        tiles[4][3].updateImage(black);
+        tiles[4][4].updateImage(white);
         gameVBox.getChildren().addAll(menuBar, header, gameBoard);
         gameScene = new Scene(gameVBox, 600, 640);
         stage.sizeToScene();
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                tiles[i][j].setOnMouseClicked(createMouseHandler());
+            } //for
+        } //for
     } //setUpGameWindow
 
     /**
@@ -148,10 +185,13 @@ public class ArcadeApp extends Application {
         HBox hbox = new HBox();
         Image image = new Image("https://store-images.s-microsoft.com/image/apps."
             + "40439.13902272735533786.62dcd87f-a7f1-4a5f-a2b7-ff69f15a9bcc.fee5bed0-c445-44c4-"
-        + "b6cb-09ae31b4c69b?mode=scale&q=90&h=1080&w=1920", 677, 378, true, false);
+            + "b6cb-09ae31b4c69b?mode=scale&q=90&h=1080&w=1920", 677, 378, true, false);
         ImageView iv = new ImageView(image);
         Button playButton = new Button("PLAY");
-        EventHandler<ActionEvent> playEvent = event -> stage.setScene(gameScene);
+        EventHandler<ActionEvent> playEvent = event -> {
+            resetGameBoard();
+            stage.setScene(gameScene);
+        };
         playButton.setOnAction(playEvent);
         hbox.getChildren().add(playButton);
         hbox.setAlignment(Pos.CENTER_LEFT);
@@ -165,10 +205,10 @@ public class ArcadeApp extends Application {
     public void start(Stage stage) {
         setUpGameScene(stage);
         setUpTitleScene(stage);
+        setUpGameBoard();
 //        r.setX(50);                                // 50px in the x direction (right)
 //        r.setY(50);                                // 50ps in the y direction (down)
 //        group.getChildren().add(r);                // add to main container
-//        r.setOnMouseClicked(createMouseHandler()); // clicks on the rectangle move it randomly
 //        group.setOnKeyPressed(createKeyHandler()); // left-right key presses move the rectangle
 
 //        Scene scene = new Scene(group, 640, 480);

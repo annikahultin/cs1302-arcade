@@ -8,13 +8,18 @@ import javafx.scene.image.Image;
  */
 public class TileSquare extends ImageView {
 
+    int x;
+    int y;
+
     /**
      * Creates a TileSquare object with the provided image.
      * @param image  the image to be used in the image view
      */
-    public TileSquare(Image image) {
+    public TileSquare(Image image, int x, int y) {
         super();
         this.setImage(image);
+        this.x = x;
+        this.y = y;
     } //TileSquare
 
     /**
@@ -25,4 +30,19 @@ public class TileSquare extends ImageView {
         this.setImage(image);
     } //updateImage
 
+    /**
+     * Returns the x value for the tile square.
+     * @return  the x value of the square
+     */
+    public int xValue() {
+        return x;
+    } //xValue
+
+    /**
+     * Returns the y value for the tile square.
+     * @return the y value for the square
+     */
+    public int yValue() {
+        return y;
+    } //yValue
 } //TileSquare

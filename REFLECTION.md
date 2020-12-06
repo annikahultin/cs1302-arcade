@@ -18,3 +18,17 @@ that the Markdown is transformed into nice looking HTML.
 3. **BRANCHING:** Will create branches for each new addition I make for the game. For example, I will
     create a branch while creating the layout of the scene. I will also create a new branch while creating
     the score feature, or keyboard commands for the users to make moves.
+
+## THR 2019-12-3 @ 4:13 PM EST
+
+1. **DONE:** Created basic outline of the gameboard. Designed my images for the game pieces and retrieved
+    the url for the image after posting them on facebook. The title scene is complete, however I will
+    likely make more modifications to it to make it look cleaner.
+
+2. **TODO:** Begin working on the mouse events and create the actual game loop. Need to figure out how I want
+    to implement the mouse events. I do not think I will use keyboard events to implement this game.
+
+3. **BRANCHING:** Created the braches titlewindow and gamewindow that I used when I was designing the title
+    and game windows. I merged titlewindow back to master after I was finished with the basic desgin for
+    the title window of the game. Merged gamewindow back to the master branch when I completed the design for
+    the game window.
