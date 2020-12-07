@@ -26,6 +26,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Label;
 import java.util.List;
 import java.util.LinkedList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -56,8 +58,7 @@ public class ArcadeApp extends Application {
         , 75, 75, true, false);
     VBox gameVBox = new VBox();
     String[][] board;
-    boolean whiteTurn = true;
-    boolean blackTurn = false;
+    boolean whiteTurn = false;
     int x;
     int y;
     int dirX[] = {-1,1,0,0,1,-1,1,-1};
@@ -70,7 +71,8 @@ public class ArcadeApp extends Application {
     int downLeftDiag = 5;
     int downRightDiag = 6;
     int upLeftDiag = 7;
-    List validFlipDir;
+    List<Integer> validFlipDir;
+    Label score;
 
     /**
      * Determines if there is a valid flip in the specified direction.
@@ -81,47 +83,51 @@ public class ArcadeApp extends Application {
     private boolean validFlip(int xVal, int yVal, int dir) {
         String oppColor;
         String currentColor;
-        boolean potentialFLip = false;
+        boolean potentialFlip = false;
         if (whiteTurn) {
             currentColor = "W";
             oppColor = "B";
         } else {
-            currentColor = "B"
+            currentColor = "B";
             oppColor = "W";
         } //if
         for (int i = 0; i < 8; i++) {
             xVal += dirX[dir];
             yVal += dirY[dir];
-            if (board[xVal][yVal].equals(oppColor)) {
-                potentialFlip = true;
-            } else if (board[xVal][yVal].equals(currentColor)) {
-                if (potentialFlip) {
-                    return true;
+            if (xVal < 8 && xVal > -1 && yVal < 8 && yVal > -1) {
+                if (board[xVal][yVal].equals(oppColor)) {
+                    potentialFlip = true;
+                } else if (board[xVal][yVal].equals(currentColor)) {
+                    if (potentialFlip) {
+                        return true;
+                    } else {
+                        return false;
+                    } //if
                 } else {
                     return false;
                 } //if
-            } else {
-                return false;
             } //if
         } //for
+        return false;
     } //validFlip
 
     /**
      * Determines wether a move is valid.
      */
-    private void validMove(int xVal, int yVal) {
-        validFLipDir = new LinkedList();
+    private boolean validMove(int xVal, int yVal) {
+        validFlipDir = new LinkedList<Integer>();
+        boolean valid = false;
         if (board[xVal][yVal].equals("")) {
             for (int dir = 0; dir < 8; dir++) {
-                if (validFlip(xVal, yVal, dir) {
+                if (validFlip(xVal, yVal, dir)) {
                     validFlipDir.add(dir);
-                    return true;
+                    valid = true;
                 } //if
             } //for
-            return false;
         } else {
             return false;
         } //if
+        return valid;
     } //validMove
 
     /**
@@ -142,13 +148,29 @@ public class ArcadeApp extends Application {
                 tiles[tileX][tileY].updateImage(black);
                 board[tileX][tileY] = "B";
                 blackScore ++;
+                whiteScore --;
+                tileX += dirX[dir];
+                tileY += dirY[dir];
             } else {
                 tiles[tileX][tileY].updateImage(white);
                 board[tileX][tileY] = "W";
                 whiteScore ++;
+                blackScore --;
+                tileX += dirX[dir];
+                tileY += dirY[dir];
             } //if
         } //while
     } //flipTiles
+
+    /**
+     * Displays error message when player tries to make an invalid move.
+     */
+    private void displayError() {
+        Alert error = new Alert(AlertType.ERROR);
+        error.setResizable(true);
+        error.setContentText("Invalid move: Must be able to flip a tile");
+        error.showAndWait();
+    } //if
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -165,14 +187,24 @@ public class ArcadeApp extends Application {
                     tileClicked.updateImage(white);
                     board[x][y] = "W";
                     whiteScore ++;
+                    for (int i = 0; i < validFlipDir.size(); i++) {
+                        flipTiles(validFlipDir.get(i));
+                    } //for
                     whiteTurn = false;
                 } else {
                     tileClicked.updateImage(black);
                     board[x][y] = "B";
-                    blackSocre ++;
+                    blackScore ++;
+                    for (int i = 0; i < validFlipDir.size(); i++) {
+                        flipTiles(validFlipDir.get(i));
+                    } //for
                     whiteTurn = true;
                 } //if
+            } else {
+                displayError();
             } //if
+            String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore;
+            score.setText(updatedScore);
         };
     } // createMouseHandler
 
@@ -245,7 +277,7 @@ public class ArcadeApp extends Application {
         menu.getItems().addAll(resume, endGame);
         menuBar.getMenus().add(menu);
         HBox header = new HBox();
-        Label score = new Label("Score:   White = 2    Black = 2");
+        score = new Label("Score:   White = 2    Black = 2");
         header.getChildren().add(score);
         gameBoard = new TilePane();
         gameBoard.setPrefColumns(8);
