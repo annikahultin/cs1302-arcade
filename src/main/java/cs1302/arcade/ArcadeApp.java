@@ -24,6 +24,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Label;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -56,6 +58,97 @@ public class ArcadeApp extends Application {
     String[][] board;
     boolean whiteTurn = true;
     boolean blackTurn = false;
+    int x;
+    int y;
+    int dirX[] = {-1,1,0,0,1,-1,1,-1};
+    int dirY[] = {0,0,1,-1,1,-1,-1,1};
+    int left = 0;
+    int right = 1;
+    int up = 2;
+    int down = 3;
+    int upRightDiag = 4;
+    int downLeftDiag = 5;
+    int downRightDiag = 6;
+    int upLeftDiag = 7;
+    List validFlipDir;
+
+    /**
+     * Determines if there is a valid flip in the specified direction.
+     * @param xVal  the x location of the tile placed in the board.
+     * @param yVal  the y location of the tile placed on the board
+     * @param dir   the direction to check if there is a valid flip
+     */
+    private boolean validFlip(int xVal, int yVal, int dir) {
+        String oppColor;
+        String currentColor;
+        boolean potentialFLip = false;
+        if (whiteTurn) {
+            currentColor = "W";
+            oppColor = "B";
+        } else {
+            currentColor = "B"
+            oppColor = "W";
+        } //if
+        for (int i = 0; i < 8; i++) {
+            xVal += dirX[dir];
+            yVal += dirY[dir];
+            if (board[xVal][yVal].equals(oppColor)) {
+                potentialFlip = true;
+            } else if (board[xVal][yVal].equals(currentColor)) {
+                if (potentialFlip) {
+                    return true;
+                } else {
+                    return false;
+                } //if
+            } else {
+                return false;
+            } //if
+        } //for
+    } //validFlip
+
+    /**
+     * Determines wether a move is valid.
+     */
+    private void validMove(int xVal, int yVal) {
+        validFLipDir = new LinkedList();
+        if (board[xVal][yVal].equals("")) {
+            for (int dir = 0; dir < 8; dir++) {
+                if (validFlip(xVal, yVal, dir) {
+                    validFlipDir.add(dir);
+                    return true;
+                } //if
+            } //for
+            return false;
+        } else {
+            return false;
+        } //if
+    } //validMove
+
+    /**
+     * Handles flipping the tiles on each player's turn.
+     * @param dir  the direction in which to flip the tiles.
+     */
+    private void flipTiles(int dir) {
+        String oppColor;
+        if (whiteTurn) {
+            oppColor = "B";
+        } else {
+            oppColor = "W";
+        } //if
+        int tileX = x + dirX[dir];
+        int tileY = y + dirY[dir];
+        while (board[tileX][tileY].equals(oppColor)) {
+            if (oppColor.equals("W")) {
+                tiles[tileX][tileY].updateImage(black);
+                board[tileX][tileY] = "B";
+                blackScore ++;
+            } else {
+                tiles[tileX][tileY].updateImage(white);
+                board[tileX][tileY] = "W";
+                whiteScore ++;
+            } //if
+        } //while
+    } //flipTiles
 
     /**
      * Return a mouse event handler that moves to the rectangle to a random
@@ -65,18 +158,18 @@ public class ArcadeApp extends Application {
     private EventHandler<? super MouseEvent> createMouseHandler() {
         return event -> {
             TileSquare tileClicked = (TileSquare) event.getSource();
-            int x = tileClicked.xValue();
-            int y = tileClicked.yValue();
-            if (board[x][y].equals("")) {
+            x = tileClicked.xValue();
+            y = tileClicked.yValue();
+            if (validMove(x, y)) {
                 if (whiteTurn) {
                     tileClicked.updateImage(white);
                     board[x][y] = "W";
+                    whiteScore ++;
                     whiteTurn = false;
-                    blackTurn = true;
                 } else {
                     tileClicked.updateImage(black);
                     board[x][y] = "B";
-                    blackTurn = false;
+                    blackSocre ++;
                     whiteTurn = true;
                 } //if
             } //if
@@ -135,6 +228,7 @@ public class ArcadeApp extends Application {
         tiles[3][4].updateImage(black);
         tiles[4][3].updateImage(black);
         tiles[4][4].updateImage(white);
+        setUpGameBoard();
     } //resetGameBoard
 
     /**
