@@ -32,3 +32,25 @@ that the Markdown is transformed into nice looking HTML.
     and game windows. I merged titlewindow back to master after I was finished with the basic desgin for
     the title window of the game. Merged gamewindow back to the master branch when I completed the design for
     the game window.
+
+## TUES 2019-12-8 @ 11:24 AM EST
+
+1. **DONE:** Worked on the methods that are involved in flipping the tiles for each player's turn and placing
+    the tiles on the board by implementing mouse events. Fixed bugs throughout the process of creating methods that
+    were successful. The game is almost fully functional, except I have not created the criteria for winning or
+    the actual game loop yet.
+
+2. **TODO:** Create the actual game loop and create the criteria for winning. Figure out how I want to display
+    a wine message and end the game. Work out the final kinks in the code and continue testing and looking
+    for minor bugs that may be present.
+
+3. **BRANCHING:** Created the branch called tileflipping where I worked on creating mouse events and the logic
+    behind the flipping of the tiles. Added three methods to my code to implement these processes and then
+    merged it back to the master branch.
+
+4. **ISSUES** I encountered some difficulties while trying to implement the mouse events that I used for the
+    players to add their peieces to the board. It took me a while to look through all of the API Documentation
+    to figure out exactly how the mouse events functioned and which code I should be using. The logic behind
+    the actual game loop is still a bit confusing to me because I have never use a game loop within a GUI
+    application before. I am still trying to figure out which methods I need to put inside the loop and which I
+    can leave out.
