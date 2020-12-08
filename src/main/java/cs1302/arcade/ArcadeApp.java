@@ -44,33 +44,16 @@ public class ArcadeApp extends Application {
     int blackScore = 2;
     TilePane gameBoard;
     TileSquare[][] tiles;
-    Image green = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/129502363_69217092505763"
-        + "6_8837454463363984394_n.jpg?_nc_cat=102&ccb=2&_nc_sid=730e14&_nc_ohc=6EaJcW1b_8kAX9whb9o"
-        + "&_nc_ht=scontent-atl3-1.xx&oh=9488f88524913240fe134fa8b5e3e123&oe=5FEFB16F",
-         75, 75, true, false);
-    Image black = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/128921566_69217850172354"
-        + "5_1376646196384949752_n.jpg?_nc_cat=102&ccb=2&_nc_sid=730e14&_nc_ohc=Qo2_rnCXcm8AX-kHjWr"
-        + "&_nc_ht=scontent-atl3-1.xx&oh=2bb70bbb10e4aedfe6d61412c50c7dbf&oe=5FF06FBD"
-        , 75, 75, true, false);
-    Image white = new Image("https://scontent-atl3-1.xx.fbcdn.net/v/t1.0-9/128557674_69217621839044"
-        + "0_8937463809284160316_n.jpg?_nc_cat=107&ccb=2&_nc_sid=730e14&_nc_ohc=381d6OVWfUcAX8sPm9D"
-        + "&_nc_ht=scontent-atl3-1.xx&oh=403463ef5412958b0d09826828483727&oe=5FED4344"
-        , 75, 75, true, false);
+    Image green = new Image("file:resources/green.jpg", 75, 75, true, false);
+    Image black = new Image("file:resources/black.jpg", 75, 75, true, false);
+    Image white = new Image("file:resources/white.jpg", 75, 75, true, false);
     VBox gameVBox = new VBox();
     String[][] board;
     boolean whiteTurn = false;
     int x;
     int y;
-    int dirX[] = {-1,1,0,0,1,-1,1,-1};
-    int dirY[] = {0,0,1,-1,1,-1,-1,1};
-    int left = 0;
-    int right = 1;
-    int up = 2;
-    int down = 3;
-    int upRightDiag = 4;
-    int downLeftDiag = 5;
-    int downRightDiag = 6;
-    int upLeftDiag = 7;
+    int xDirection[] = {-1,1,0,0,1,-1,1,-1};
+    int yDirection[] = {0,0,1,-1,1,-1,-1,1};
     List<Integer> validFlipDir;
     Label score;
 
@@ -80,10 +63,10 @@ public class ArcadeApp extends Application {
      * @param yVal  the y location of the tile placed on the board
      * @param dir   the direction to check if there is a valid flip
      */
-    private boolean validFlip(int xVal, int yVal, int dir) {
+    private boolean validFlip(int xVal, int yVal, int d) {
         String oppColor;
         String currentColor;
-        boolean potentialFlip = false;
+        int potentialFlips = 0;
         if (whiteTurn) {
             currentColor = "W";
             oppColor = "B";
@@ -92,13 +75,13 @@ public class ArcadeApp extends Application {
             oppColor = "W";
         } //if
         for (int i = 0; i < 8; i++) {
-            xVal += dirX[dir];
-            yVal += dirY[dir];
+            xVal += xDirection[d];
+            yVal += yDirection[d];
             if (xVal < 8 && xVal > -1 && yVal < 8 && yVal > -1) {
                 if (board[xVal][yVal].equals(oppColor)) {
-                    potentialFlip = true;
+                    potentialFlips ++;
                 } else if (board[xVal][yVal].equals(currentColor)) {
-                    if (potentialFlip) {
+                    if (potentialFlips > 0) {
                         return true;
                     } else {
                         return false;
@@ -118,14 +101,12 @@ public class ArcadeApp extends Application {
         validFlipDir = new LinkedList<Integer>();
         boolean valid = false;
         if (board[xVal][yVal].equals("")) {
-            for (int dir = 0; dir < 8; dir++) {
-                if (validFlip(xVal, yVal, dir)) {
-                    validFlipDir.add(dir);
+            for (int i = 0; i < 8; i++) {
+                if (validFlip(xVal, yVal, i)) {
+                    validFlipDir.add(i);
                     valid = true;
                 } //if
             } //for
-        } else {
-            return false;
         } //if
         return valid;
     } //validMove
@@ -134,30 +115,30 @@ public class ArcadeApp extends Application {
      * Handles flipping the tiles on each player's turn.
      * @param dir  the direction in which to flip the tiles.
      */
-    private void flipTiles(int dir) {
+    private void flipTiles(int d) {
         String oppColor;
         if (whiteTurn) {
             oppColor = "B";
         } else {
             oppColor = "W";
         } //if
-        int tileX = x + dirX[dir];
-        int tileY = y + dirY[dir];
+        int tileX = x + xDirection[d];
+        int tileY = y + yDirection[d];
         while (board[tileX][tileY].equals(oppColor)) {
             if (oppColor.equals("W")) {
                 tiles[tileX][tileY].updateImage(black);
                 board[tileX][tileY] = "B";
                 blackScore ++;
                 whiteScore --;
-                tileX += dirX[dir];
-                tileY += dirY[dir];
+                tileX += xDirection[d];
+                tileY += yDirection[d];
             } else {
                 tiles[tileX][tileY].updateImage(white);
                 board[tileX][tileY] = "W";
                 whiteScore ++;
                 blackScore --;
-                tileX += dirX[dir];
-                tileY += dirY[dir];
+                tileX += xDirection[d];
+                tileY += yDirection[d];
             } //if
         } //while
     } //flipTiles
@@ -309,9 +290,7 @@ public class ArcadeApp extends Application {
     private void setUpTitleScene(Stage stage) {
         VBox vbox = new VBox();
         HBox hbox = new HBox();
-        Image image = new Image("https://store-images.s-microsoft.com/image/apps."
-            + "40439.13902272735533786.62dcd87f-a7f1-4a5f-a2b7-ff69f15a9bcc.fee5bed0-c445-44c4-"
-            + "b6cb-09ae31b4c69b?mode=scale&q=90&h=1080&w=1920", 677, 378, true, false);
+        Image image = new Image("file:resources/reversi.jpeg", 677, 378, true, false);
         ImageView iv = new ImageView(image);
         Button playButton = new Button("PLAY");
         EventHandler<ActionEvent> playEvent = event -> {
