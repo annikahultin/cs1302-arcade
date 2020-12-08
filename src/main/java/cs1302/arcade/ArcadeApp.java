@@ -40,6 +40,8 @@ public class ArcadeApp extends Application {
     Rectangle r = new Rectangle(20, 20); // some rectangle
     Scene titleScene;
     Scene gameScene;
+    Scene winScene;
+    Stage stage;
     int whiteScore = 2;
     int blackScore = 2;
     TilePane gameBoard;
@@ -47,6 +49,8 @@ public class ArcadeApp extends Application {
     Image green = new Image("file:resources/green.jpg", 75, 75, true, false);
     Image black = new Image("file:resources/black.jpg", 75, 75, true, false);
     Image white = new Image("file:resources/white.jpg", 75, 75, true, false);
+    Image whiteWin = new Image("file:resources/whitewin.jpg", 500, 500, true, false);
+    Image blackWin = new Image("file:resources/blackwin.jpg", 500, 500, true, false);
     VBox gameVBox = new VBox();
     String[][] board;
     boolean whiteTurn = false;
@@ -62,6 +66,7 @@ public class ArcadeApp extends Application {
      * @param xVal  the x location of the tile placed in the board.
      * @param yVal  the y location of the tile placed on the board
      * @param dir   the direction to check if there is a valid flip
+     * @return true if the flip is valid; false otherwise
      */
     private boolean validFlip(int xVal, int yVal, int d) {
         String oppColor;
@@ -96,6 +101,7 @@ public class ArcadeApp extends Application {
 
     /**
      * Determines wether a move is valid.
+     * @return true if the move is valid; false otherwise
      */
     private boolean validMove(int xVal, int yVal) {
         validFlipDir = new LinkedList<Integer>();
@@ -186,8 +192,28 @@ public class ArcadeApp extends Application {
             } //if
             String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore;
             score.setText(updatedScore);
+            if (anyValidMoves() == false) {
+                setUpWinScene();
+                stage.setScene(winScene);
+            } //if
         };
     } // createMouseHandler
+
+    /**
+     * Determines whether there are any valid moves for the player.
+     * @return true if there are valid moves, false otherwise
+     */
+    private boolean anyValidMoves() {
+        boolean validMoves = false;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (validMove(i, j)) {
+                    validMoves = true;
+                } //if
+            } //for
+        } //for
+        return validMoves;
+    } //anyValidMoves
 
     /**
      * Return a key event handler that moves to the rectangle to the left
@@ -241,14 +267,17 @@ public class ArcadeApp extends Application {
         tiles[3][4].updateImage(black);
         tiles[4][3].updateImage(black);
         tiles[4][4].updateImage(white);
+        whiteScore = 2;
+        blackScore = 2;
+        String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore;
+        score.setText(updatedScore);
         setUpGameBoard();
     } //resetGameBoard
 
     /**
      * Sets up the game window.
-     * @param stage  the stage object for the game
      */
-    private void setUpGameScene(Stage stage) {
+    private void setUpGameScene() {
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("Pause");
         MenuItem resume = new MenuItem("Resume");
@@ -285,9 +314,8 @@ public class ArcadeApp extends Application {
 
     /**
      * Sets up the intial title window for the game.
-     * @param stage  the stage object for the app.
      */
-    private void setUpTitleScene(Stage stage) {
+    private void setUpTitleScene() {
         VBox vbox = new VBox();
         HBox hbox = new HBox();
         Image image = new Image("file:resources/reversi.jpeg", 677, 378, true, false);
@@ -305,11 +333,31 @@ public class ArcadeApp extends Application {
         stage.sizeToScene();
     } //setUpTitleScene
 
+    /**
+     * Sets up the win scene.
+     */
+    private void setUpWinScene() {
+        VBox vbox = new VBox();
+        ImageView winView = new ImageView();
+        if (whiteScore > blackScore) {
+            winView.setImage(whiteWin);
+        } else {
+            winView.setImage(blackWin);
+        } //if
+        Button playAgain = new Button("PLAY AGAIN");
+        EventHandler<ActionEvent> playAgainHandler = event -> stage.setScene(titleScene);
+        playAgain.setOnAction(playAgainHandler);
+        vbox.getChildren().addAll(playAgain, winView);
+        winScene = new Scene(vbox, 500, 500);
+        stage.sizeToScene();
+    } //if
+
     /** {@inheritDoc} */
     @Override
     public void start(Stage stage) {
-        setUpGameScene(stage);
-        setUpTitleScene(stage);
+        this.stage = stage;
+        setUpGameScene();
+        setUpTitleScene();
         setUpGameBoard();
 //        r.setX(50);                                // 50px in the x direction (right)
 //        r.setY(50);                                // 50ps in the y direction (down)
