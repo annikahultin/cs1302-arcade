@@ -14,6 +14,8 @@ public class TileSquare extends ImageView {
     /**
      * Creates a TileSquare object with the provided image.
      * @param image  the image to be used in the image view
+     * @param x  the x value for the tile square
+     * @param y  the y value for the tile square
      */
     public TileSquare(Image image, int x, int y) {
         super();

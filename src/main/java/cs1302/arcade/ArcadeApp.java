@@ -39,41 +39,43 @@ public class ArcadeApp extends Application {
     Group group = new Group();           // main container
     Random rng = new Random();           // random number generator
     Rectangle r = new Rectangle(20, 20); // some rectangle
-    Scene titleScene;
-    Scene gameScene;
-    Scene winScene;
+    Scene titleScene; // the scene for the title screen
+    Scene gameScene; // the scene for the game board
+    Scene winScene; // the scene that displays the win message
     Stage stage;
-    int whiteScore = 2;
-    int blackScore = 2;
-    TilePane gameBoard;
-    TileSquare[][] tiles;
+    int whiteScore = 2; //keeps track of the white score
+    int blackScore = 2; //keeps track of the black score
+    TilePane gameBoard; // the game board doling all the image views
+    TileSquare[][] tiles; // holds all of the image views
     Image green = new Image("file:resources/green.jpg", 75, 75, true, false);
     Image black = new Image("file:resources/black.jpg", 75, 75, true, false);
     Image white = new Image("file:resources/white.jpg", 75, 75, true, false);
     Image whiteWin = new Image("file:resources/whitewin.jpg", 500, 500, true, false);
     Image blackWin = new Image("file:resources/blackwin.jpg", 500, 500, true, false);
-    VBox gameVBox = new VBox();
-    String[][] board;
-    boolean whiteTurn = false;
-    int x;
-    int y;
-    int xDirection[] = {-1,1,0,0,1,-1,1,-1};
-    int yDirection[] = {0,0,1,-1,1,-1,-1,1};
-    List<Integer> validFlipDir;
-    Label score;
+    VBox gameVBox = new VBox(); // holds all of the contents of the game board
+    String[][] board; // keeps track of the status of each tile in the game board
+    boolean whiteTurn = false; //keeps track of whose turn it is
+    int x; // x location of the tile clicked
+    int y; // y locatin of the tile clicked
+    // arrays that hold that hold the values that are added to the x and y values in a direction
+    int[] xDirection = {-1,1,0,0,1,1,-1,-1}; //left, right, up, down, right up diag
+    int[] yDirection = {0,0,1,-1,1,-1,1,-1}; // right down diag, left up diag, left down diag
+    List<Integer> validFlipDir; // contains the indices of the two arrays above that are valid flips
+    Label score; //displays the score in the game scene
     String currentTurn = "Black";
 
     /**
      * Determines if there is a valid flip in the specified direction.
      * @param xVal  the x location of the tile placed in the board.
      * @param yVal  the y location of the tile placed on the board
-     * @param dir   the direction to check if there is a valid flip
+     * @param d     the direction to check if there is a valid flip
      * @return true if the flip is valid; false otherwise
      */
     private boolean validFlip(int xVal, int yVal, int d) {
-        String oppColor;
-        String currentColor;
-        int potentialFlips = 0;
+        String oppColor; // keeps track of the opposite color
+        String currentColor; // keeps track of the current color
+        int potentialFlips = 0; // keeps track of how many tiles could potentially flip
+        boolean valid = false; // wether or not there is a valid flip
         if (whiteTurn) {
             currentColor = "W";
             oppColor = "B";
@@ -81,37 +83,36 @@ public class ArcadeApp extends Application {
             currentColor = "B";
             oppColor = "W";
         } //if
-        for (int i = 0; i < 8; i++) {
-            xVal += xDirection[d];
-            yVal += yDirection[d];
-            if (xVal < 8 && xVal > -1 && yVal < 8 && yVal > -1) {
-                if (board[xVal][yVal].equals(oppColor)) {
-                    potentialFlips ++;
-                } else if (board[xVal][yVal].equals(currentColor)) {
-                    if (potentialFlips > 0) {
-                        return true;
-                    } else {
-                        return false;
+        for (int i = 0; i < board.length; i++) {
+            xVal += xDirection[d]; // shifts the y value of the tile in the specified direction
+            yVal += yDirection[d]; // shifts the y value of the tile in the specified direction
+            if (xVal < 8 && xVal > -1 && yVal < 8 && yVal > -1) { // makes sure indices are in bound
+                if (board[xVal][yVal].equals(oppColor)) { // checks if next tile is opposite color
+                    potentialFlips ++; //number of potential flips increases
+                } else if (board[xVal][yVal].equals(currentColor)) { //make sure reach actual color
+                    if (potentialFlips > 0) { //makes sure there are tiles of opp color between
+                        valid = true;
+                        potentialFlips = 0;
                     } //if
-                } else {
-                    return false;
                 } //if
             } //if
         } //for
-        return false;
+        return valid;
     } //validFlip
 
     /**
      * Determines wether a move is valid.
+     * @param xVal  the x value for the square to check
+     * @param yVal  the y value for the square to check
      * @return true if the move is valid; false otherwise
      */
     private boolean validMove(int xVal, int yVal) {
         validFlipDir = new LinkedList<Integer>();
         boolean valid = false;
-        if (board[xVal][yVal].equals("")) {
-            for (int i = 0; i < 8; i++) {
-                if (validFlip(xVal, yVal, i)) {
-                    validFlipDir.add(i);
+        if (board[xVal][yVal].equals("")) { // makes sure tile is place in an emtpy square
+            for (int i = 0; i < xDirection.length; i++) {
+                if (validFlip(xVal, yVal, i)) { //checks if there is a valid flip in all directions
+                    validFlipDir.add(i); //adds the direction to the list if the flip is valid
                     valid = true;
                 } //if
             } //for
@@ -121,7 +122,7 @@ public class ArcadeApp extends Application {
 
     /**
      * Handles flipping the tiles on each player's turn.
-     * @param dir  the direction in which to flip the tiles.
+     * @param d  the direction in which to flip the tiles.
      */
     private void flipTiles(int d) {
         String oppColor;
@@ -130,23 +131,24 @@ public class ArcadeApp extends Application {
         } else {
             oppColor = "W";
         } //if
-        int tileX = x + xDirection[d];
-        int tileY = y + yDirection[d];
+        int tileX = x + xDirection[d]; //shift the x value in specified direction
+        int tileY = y + yDirection[d]; //shifts the y value in the specified direction
+        // changes the image in the imageview while the square is still the opposite color
         while (board[tileX][tileY].equals(oppColor)) {
             if (oppColor.equals("W")) {
-                tiles[tileX][tileY].updateImage(black);
-                board[tileX][tileY] = "B";
+                tiles[tileX][tileY].updateImage(black); //changes image to the opp color image
+                board[tileX][tileY] = "B"; //updates the game board
                 blackScore ++;
                 whiteScore --;
-                tileX += xDirection[d];
-                tileY += yDirection[d];
+                tileX += xDirection[d]; //shifts the x value in the specified direction again
+                tileY += yDirection[d]; //shifts the y value in the specified direction again
             } else {
-                tiles[tileX][tileY].updateImage(white);
-                board[tileX][tileY] = "W";
+                tiles[tileX][tileY].updateImage(white); //changes image to the opp color image
+                board[tileX][tileY] = "W"; //updates the game board
                 whiteScore ++;
                 blackScore --;
-                tileX += xDirection[d];
-                tileY += yDirection[d];
+                tileX += xDirection[d]; //shifts the x value in the specified direction again
+                tileY += yDirection[d]; //shifts the y value in the specified direction again
             } //if
         } //while
     } //flipTiles
@@ -158,7 +160,7 @@ public class ArcadeApp extends Application {
         Alert error = new Alert(AlertType.ERROR);
         error.setResizable(true);
         error.setContentText("Invalid move: Must be able to flip a tile");
-        error.showAndWait();
+        error.showAndWait(); //displays the alert with the error message to the user
     } //if
 
     /**
@@ -168,29 +170,29 @@ public class ArcadeApp extends Application {
      */
     private EventHandler<? super MouseEvent> createMouseHandler() {
         return event -> {
-            TileSquare tileClicked = (TileSquare) event.getSource();
-            x = tileClicked.xValue();
-            y = tileClicked.yValue();
-            if (validMove(x, y)) {
+            TileSquare tileClicked = (TileSquare) event.getSource(); //grabs the TileSquare clicked
+            x = tileClicked.xValue(); //gets the x value of the square
+            y = tileClicked.yValue(); //gets the y value of the square
+            if (validMove(x, y)) { //checks if the square clicked was a valid move
                 if (whiteTurn) {
-                    tileClicked.updateImage(white);
-                    board[x][y] = "W";
+                    tileClicked.updateImage(white); //updates the image in the square clicked
+                    board[x][y] = "W"; //updates board
                     whiteScore ++;
                     for (int i = 0; i < validFlipDir.size(); i++) {
-                        flipTiles(validFlipDir.get(i));
+                        flipTiles(validFlipDir.get(i)); //flips the tiles in the valid directions
                     } //for
                     whiteTurn = false;
                 } else {
-                    tileClicked.updateImage(black);
-                    board[x][y] = "B";
+                    tileClicked.updateImage(black); //updates the image in the square clicked
+                    board[x][y] = "B"; //updates board
                     blackScore ++;
                     for (int i = 0; i < validFlipDir.size(); i++) {
-                        flipTiles(validFlipDir.get(i));
+                        flipTiles(validFlipDir.get(i)); //flips the tiles in the valid directions
                     } //for
                     whiteTurn = true;
                 } //if
             } else {
-                displayError();
+                displayError(); //displays error to the user
             } //if
             if (whiteTurn) {
                 currentTurn = "White";
@@ -198,11 +200,11 @@ public class ArcadeApp extends Application {
                 currentTurn = "Black";
             } //if
             String updatedScore = "Score:   White = " + whiteScore + "   Black = " + blackScore
-                + "   " + currentTurn + "'s Turn";
+                + "   " + currentTurn + "'s Turn"; //updates the string for the score label
             score.setText(updatedScore);
-            if (anyValidMoves() == false) {
+            if (anyValidMoves() == false) { //checks if the game is over
                 setUpWinScene();
-                stage.setScene(winScene);
+                stage.setScene(winScene); //switches to the win scene
                 stage.sizeToScene();
             } //if
         };
@@ -216,6 +218,7 @@ public class ArcadeApp extends Application {
         boolean validMoves = false;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
+                //checks if there are any valid moves for the current player at all indices
                 if (validMove(i, j)) {
                     validMoves = true;
                 } //if
@@ -225,38 +228,16 @@ public class ArcadeApp extends Application {
     } //anyValidMoves
 
     /**
-     * Return a key event handler that moves to the rectangle to the left
-     * or the right depending on what key event is generated by the associated
-     * node.
-     * @return the key event handler
-     */
-    private EventHandler<? super KeyEvent> createKeyHandler() {
-        return event -> {
-            System.out.println(event);
-            switch (event.getCode()) {
-            case LEFT:  // KeyCode.LEFT
-                r.setX(r.getX() - 10.0);
-                break;
-            case RIGHT: // KeyCode.RIGHT
-                r.setX(r.getX() + 10.0);
-                break;
-            default:
-                // do nothing
-            } // switch
-            // TODO bounds checking
-        };
-    } // createKeyHandler
-
-    /**
      * Sets up the game board.
      */
     public void setUpGameBoard() {
         board = new String[8][8];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                board[i][j] = "";
+                board[i][j] = ""; //sets all squares to empty
             } //for
         } //for
+        // updates the board for the intial middle for squares
         board[3][3] = "W";
         board[3][4] = "B";
         board[4][3] = "B";
@@ -269,19 +250,21 @@ public class ArcadeApp extends Application {
     private void resetGameBoard() {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
-                tiles[i][j].updateImage(green);
+                tiles[i][j].updateImage(green); //resets all the squares to the empty image
             } //for
         } //for
+        // updates the images for the middle 4 squares for intial set up
         tiles[3][3].updateImage(white);
         tiles[3][4].updateImage(black);
         tiles[4][3].updateImage(black);
         tiles[4][4].updateImage(white);
-        whiteScore = 2;
-        blackScore = 2;
+        whiteScore = 2; //resets the white score
+        blackScore = 2; //resets the black score
         String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore
-            + "   Black's Turn";
+            + "   Black's Turn"; //resets the string for the score label
         score.setText(updatedScore);
-        setUpGameBoard();
+        setUpGameBoard(); //resets the game board String[][] array
+        whiteTurn = false;
     } //resetGameBoard
 
     /**
@@ -291,46 +274,48 @@ public class ArcadeApp extends Application {
         String directions = "Click the square where you would like to place\na tile. You must be "
             + "about to flip at least one tile of\nthe opposite color by surrounding the tile with"
             + "\nyour color tile on either side. The game is\nover if either player no longer has"
-            + "any valid\nmoves. Black goes first.";
+            + " any valid\nmoves. Black goes first."; // the string presented to the user
         Alert instructions = new Alert(AlertType.NONE, directions, ButtonType.OK);
         instructions.setResizable(true);
-        instructions.showAndWait();
+        instructions.showAndWait(); //shows the instructions to the user
     } //setUpInstructions
 
     /**
      * Sets up the game window.
      */
     private void setUpGameScene() {
-        MenuBar menuBar = new MenuBar();
+        MenuBar menuBar = new MenuBar(); //holds the resume and end game button
         Menu menu = new Menu("Pause");
         MenuItem resume = new MenuItem("Resume");
         MenuItem endGame = new MenuItem("Leave Game");
-        EventHandler<ActionEvent> endGameHandler = event -> {
-            stage.setScene(titleScene);
+        EventHandler<ActionEvent> endGameHandler = event -> { //handles the end game button
+            stage.setScene(titleScene); //switches back to the title scene
             stage.sizeToScene();
         };
-        endGame.setOnAction(endGameHandler);
-        menu.getItems().addAll(resume, endGame);
+        endGame.setOnAction(endGameHandler); //adds action to the end game button
+        menu.getItems().addAll(resume, endGame); //adds all the buttons to the menu bar
         menuBar.getMenus().add(menu);
-        HBox header = new HBox();
-        score = new Label("Score:   White = 2   Black = 2   Black's Turn");
+        HBox header = new HBox(); //holds the score label for the game board
+        score = new Label("Score:   White = 2   Black = 2   Black's Turn"); //displays the score
         header.getChildren().add(score);
-        gameBoard = new TilePane();
+        gameBoard = new TilePane(); //holds the images for the game board
         gameBoard.setPrefColumns(8);
-        tiles = new TileSquare[8][8];
+        tiles = new TileSquare[8][8]; // the image views for the tile pane
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
-                tiles[i][j] = new TileSquare(green, i, j);
-                gameBoard.getChildren().addAll(tiles[i][j]);
+                tiles[i][j] = new TileSquare(green, i, j); //creates new TileSquare
+                gameBoard.getChildren().addAll(tiles[i][j]); //adds each TileSquare to tilepane
             } //for
         } //for
+        //updates images for the middle 4 squares for the beginning of the game
         tiles[3][3].updateImage(white);
         tiles[3][4].updateImage(black);
         tiles[4][3].updateImage(black);
         tiles[4][4].updateImage(white);
-        gameVBox.getChildren().addAll(menuBar, header, gameBoard);
-        gameScene = new Scene(gameVBox, 600, 640);
+        gameVBox.getChildren().addAll(menuBar, header, gameBoard); //adds all items to the game vbox
+        gameScene = new Scene(gameVBox, 600, 640); //creates game scene
         stage.sizeToScene();
+        //sets the action when the mouse is clicked on each square on the game board
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 tiles[i][j].setOnMouseClicked(createMouseHandler());
@@ -347,16 +332,16 @@ public class ArcadeApp extends Application {
         Image image = new Image("file:resources/reversi.jpeg", 677, 378, true, false);
         ImageView iv = new ImageView(image);
         Button playButton = new Button("PLAY");
-        EventHandler<ActionEvent> playEvent = event -> {
-            resetGameBoard();
-            stage.setScene(gameScene);
-            setUpInstructions();
+        EventHandler<ActionEvent> playEvent = event -> { //when button is pressed the game begins
+            resetGameBoard(); //resets the game board if there was a previous game played
+            stage.setScene(gameScene); //switches to the game scene
+            setUpInstructions(); //displays the instructions to the user
         };
-        playButton.setOnAction(playEvent);
+        playButton.setOnAction(playEvent); //sets action to the play button
         hbox.getChildren().add(playButton);
-        hbox.setAlignment(Pos.CENTER_LEFT);
-        vbox.getChildren().addAll(hbox, iv);
-        titleScene = new Scene(vbox);
+        hbox.setAlignment(Pos.CENTER_LEFT); //adjusts position of the play button
+        vbox.getChildren().addAll(hbox, iv); //adds all the items to the overall vbox
+        titleScene = new Scene(vbox); //creates the title scene
     } //setUpTitleScene
 
     /**
@@ -365,43 +350,32 @@ public class ArcadeApp extends Application {
     private void setUpWinScene() {
         VBox vbox = new VBox();
         ImageView winView = new ImageView();
-        if (whiteScore > blackScore) {
+        if (whiteScore > blackScore) { //sets the win message image based on the winner
             winView.setImage(whiteWin);
         } else {
             winView.setImage(blackWin);
         } //if
         Button playAgain = new Button("PLAY AGAIN");
-        EventHandler<ActionEvent> playAgainHandler = event -> {
-            stage.setScene(titleScene);
+        EventHandler<ActionEvent> playAgainHandler = event -> { //when it will return to title scene
+            stage.setScene(titleScene); //switches back to title scene
             stage.sizeToScene();
         };
-        playAgain.setOnAction(playAgainHandler);
-        vbox.getChildren().addAll(playAgain, winView);
-        winScene = new Scene(vbox);
+        playAgain.setOnAction(playAgainHandler); //sets action on the play again button
+        vbox.getChildren().addAll(playAgain, winView); //adds all items to the overall vbox
+        winScene = new Scene(vbox); //creates the win scene
     } //if
 
     /** {@inheritDoc} */
     @Override
     public void start(Stage stage) {
-        this.stage = stage;
+        this.stage = stage; //initalizes the stage variable
         setUpGameScene();
         setUpTitleScene();
         setUpGameBoard();
-//        r.setX(50);                                // 50px in the x direction (right)
-//        r.setY(50);                                // 50ps in the y direction (down)
-//        group.getChildren().add(r);                // add to main container
-//        group.setOnKeyPressed(createKeyHandler()); // left-right key presses move the rectangle
-
-//        Scene scene = new Scene(group, 640, 480);
         stage.setTitle("cs1302-arcade!");
         stage.setScene(titleScene);
         stage.sizeToScene();
         stage.show();
-
-        // the group must request input focus to receive key events
-        // @see https://docs.oracle.com/javase/8/javafx/api/javafx/scene/Node.html#requestFocus--
-        group.requestFocus();
-
     } // start
 
 } // ArcadeApp
