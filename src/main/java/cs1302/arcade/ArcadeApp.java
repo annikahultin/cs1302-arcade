@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.LinkedList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 /**
  * Application subclass for {@code ArcadeApp}.
@@ -60,6 +61,7 @@ public class ArcadeApp extends Application {
     int yDirection[] = {0,0,1,-1,1,-1,-1,1};
     List<Integer> validFlipDir;
     Label score;
+    String currentTurn = "Black";
 
     /**
      * Determines if there is a valid flip in the specified direction.
@@ -190,11 +192,18 @@ public class ArcadeApp extends Application {
             } else {
                 displayError();
             } //if
-            String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore;
+            if (whiteTurn) {
+                currentTurn = "White";
+            } else {
+                currentTurn = "Black";
+            } //if
+            String updatedScore = "Score:   White = " + whiteScore + "   Black = " + blackScore
+                + "   " + currentTurn + "'s Turn";
             score.setText(updatedScore);
             if (anyValidMoves() == false) {
                 setUpWinScene();
                 stage.setScene(winScene);
+                stage.sizeToScene();
             } //if
         };
     } // createMouseHandler
@@ -269,10 +278,24 @@ public class ArcadeApp extends Application {
         tiles[4][4].updateImage(white);
         whiteScore = 2;
         blackScore = 2;
-        String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore;
+        String updatedScore = "Score:   White = " + whiteScore + "    Black = " + blackScore
+            + "   Black's Turn";
         score.setText(updatedScore);
         setUpGameBoard();
     } //resetGameBoard
+
+    /**
+     * Sets up the alert to tell the user the directions for the game.
+     */
+    private void setUpInstructions() {
+        String directions = "Click the square where you would like to place\na tile. You must be "
+            + "about to flip at least one tile of\nthe opposite color by surrounding the tile with"
+            + "\nyour color tile on either side. The game is\nover if either player no longer has"
+            + "any valid\nmoves. Black goes first.";
+        Alert instructions = new Alert(AlertType.NONE, directions, ButtonType.OK);
+        instructions.setResizable(true);
+        instructions.showAndWait();
+    } //setUpInstructions
 
     /**
      * Sets up the game window.
@@ -282,12 +305,15 @@ public class ArcadeApp extends Application {
         Menu menu = new Menu("Pause");
         MenuItem resume = new MenuItem("Resume");
         MenuItem endGame = new MenuItem("Leave Game");
-        EventHandler<ActionEvent> endGameHandler = event -> stage.setScene(titleScene);
+        EventHandler<ActionEvent> endGameHandler = event -> {
+            stage.setScene(titleScene);
+            stage.sizeToScene();
+        };
         endGame.setOnAction(endGameHandler);
         menu.getItems().addAll(resume, endGame);
         menuBar.getMenus().add(menu);
         HBox header = new HBox();
-        score = new Label("Score:   White = 2    Black = 2");
+        score = new Label("Score:   White = 2   Black = 2   Black's Turn");
         header.getChildren().add(score);
         gameBoard = new TilePane();
         gameBoard.setPrefColumns(8);
@@ -324,13 +350,13 @@ public class ArcadeApp extends Application {
         EventHandler<ActionEvent> playEvent = event -> {
             resetGameBoard();
             stage.setScene(gameScene);
+            setUpInstructions();
         };
         playButton.setOnAction(playEvent);
         hbox.getChildren().add(playButton);
         hbox.setAlignment(Pos.CENTER_LEFT);
         vbox.getChildren().addAll(hbox, iv);
-        titleScene = new Scene(vbox, 672, 490);
-        stage.sizeToScene();
+        titleScene = new Scene(vbox);
     } //setUpTitleScene
 
     /**
@@ -345,11 +371,13 @@ public class ArcadeApp extends Application {
             winView.setImage(blackWin);
         } //if
         Button playAgain = new Button("PLAY AGAIN");
-        EventHandler<ActionEvent> playAgainHandler = event -> stage.setScene(titleScene);
+        EventHandler<ActionEvent> playAgainHandler = event -> {
+            stage.setScene(titleScene);
+            stage.sizeToScene();
+        };
         playAgain.setOnAction(playAgainHandler);
         vbox.getChildren().addAll(playAgain, winView);
-        winScene = new Scene(vbox, 500, 500);
-        stage.sizeToScene();
+        winScene = new Scene(vbox);
     } //if
 
     /** {@inheritDoc} */
