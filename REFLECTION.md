@@ -54,3 +54,21 @@ that the Markdown is transformed into nice looking HTML.
     the actual game loop is still a bit confusing to me because I have never use a game loop within a GUI
     application before. I am still trying to figure out which methods I need to put inside the loop and which I
     can leave out.
+
+## SAT 2019-12-12 @ 4:50 PM EST
+
+1. **DONE:** Wrote a method to determine when the game should end. Created the alerts to give the user the instructions
+    for the game. Edited the code the flip the tiles to fix a minor bug that I found. Added the win messages when the game
+    ends. Made sure the code passed checkstyle. Tested the game in a variety of different cases.
+
+2. **ISSUE FIXES** Discovered that I did not actually need a game loop to end the game. Instead I created a method that
+    checked if the player has any valid moves at any location on the board, and if they did not, I switched to the win
+    scene and printed the win message for whichever player's score was higher. None of my methods needed to be inside
+    a game loop in order for it to work, so that solved my issue that I was previously having in the reflection entry above.
+    I encountered a couple of other minor bugs while I was testing my game, but I was able to work them out.
+
+3. **BRANCHING:** Created a branch called userInstructions that I used when I was creating the alert that I would present to
+    the user to explain the directions of the game. I then merged this branch back to master and made a couple of final
+    changes to my code and commited the code on the master branch.
+
+4. **EXTRA CREDIT** I did not include any of the extra credit assignments in my project.

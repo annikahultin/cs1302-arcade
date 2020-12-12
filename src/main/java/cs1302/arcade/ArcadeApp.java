@@ -91,9 +91,16 @@ public class ArcadeApp extends Application {
                     potentialFlips ++; //number of potential flips increases
                 } else if (board[xVal][yVal].equals(currentColor)) { //make sure reach actual color
                     if (potentialFlips > 0) { //makes sure there are tiles of opp color between
-                        valid = true;
-                        potentialFlips = 0;
+                        valid = true; // valid becasue there are opp color tile between
+                        potentialFlips = 0; //sets back to 0
+                        return valid;
+                    } else { //not valid becasue there arent opp color tiles between
+                        valid = false;
+                        return valid;
                     } //if
+                } else if (board[xVal][yVal].equals("")) { //checks if square is empty
+                    valid = false; //not a valid flip because there is no tile there
+                    return valid;
                 } //if
             } //if
         } //for
